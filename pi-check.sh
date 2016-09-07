@@ -30,13 +30,14 @@ REALM=themis
 OTP_CMD=oathtool
 # Package httpie
 HTTP_CMD=http
+USER_AGENT=icinga_check
 
 # This is the token with the serial TOTP00295075
 # You should use a TOTP token, since we do not save
 # the HOTP counter anywhere!
 
 OTP=`${OTP_CMD} --totp ${OTP_SEED}`
-RESULT=`${HTTP_CMD} ${URL} user=$USER realm=$REALM pass=${PIN}${OTP}`
+RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=$USER realm=$REALM pass=${PIN}${OTP}`
 
 echo $RESULT | grep '"status": true' - > /dev/null
 SERVER_OK=$?
