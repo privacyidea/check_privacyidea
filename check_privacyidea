@@ -49,11 +49,13 @@ RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=${USER} realm=${REALM}
 
 if [ $(echo ${RESULT} | grep -q '"status": true') -ne 0 ]; then
     # The server has a problem
+    echo ${RESULT}
     exit ${STATE_CRITICAL}
 fi
 
 if [ $(echo ${RESULT} | grep -q '"value": true') -ne 0 ]; then
     # The authentication failed
+    echo ${RESULT}
     exit ${STATE_WARNING}
 fi
 
