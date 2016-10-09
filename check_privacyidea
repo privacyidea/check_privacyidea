@@ -40,19 +40,19 @@ USER_AGENT=icinga_check
 # the HOTP counter anywhere!
 
 OTP=`${OTP_CMD} --totp ${OTP_SEED}`
-RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=$USER realm=$REALM pass=${PIN}${OTP}`
+RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=${USER} realm=${REALM} pass=${PIN}${OTP}`
 
 
 
 # Return codes according to
 # http://docs.icinga.org/latest/en/pluginapi.html
 
-if [ $(echo $RESULT | grep -q '"status": true') -ne 0 ]; then
+if [ $(echo ${RESULT} | grep -q '"status": true') -ne 0 ]; then
     # The server has a problem
     exit ${STATE_CRITICAL}
 fi
 
-if [ $(echo $RESULT | grep '"value": true') -ne 0 ]; then
+if [ $(echo ${RESULT} | grep '"value": true') -ne 0 ]; then
     # The authentication failed
     exit ${STATE_WARNING}
 fi
