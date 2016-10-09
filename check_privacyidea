@@ -20,6 +20,9 @@
 #
 #-------------------------------------------------------------
 # You might need to change this:
+
+source utils.sh || exit 3
+
 URL=http://localhost:5000/validate/check
 # TODO: Use --verify option
 CHECK_SSL=0
@@ -51,13 +54,13 @@ AUTH_OK=$?
 if [ $SERVER_OK -ne 0 ]; then
    # The server has a problem to process the request
    echo $RESULT
-   exit 2
+   exit ${STATE_CRITICAL}
 fi
 
 if [ $AUTH_OK -ne 0 ]; then
    # The authentication failed
    echo $RESULT
-   exit 1
+   exit ${STATE_WARNING}
 fi
 
 echo "Testuser $USER authenticated successfully."
