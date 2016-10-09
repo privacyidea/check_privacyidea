@@ -14,12 +14,15 @@
 # GNU AFFERO GENERAL PUBLIC LICENSE for more details.
 #
 # You should have received a copy of the GNU General Public
-# License along with this program.  
-# If not, see <http://www.gnu.org/licenses/>. 
+# License along with this program.
+# If not, see <http://www.gnu.org/licenses/>.
 #
 #
 #-------------------------------------------------------------
 # You might need to change this:
+
+source utils.sh || exit 3
+
 URL=http://localhost:5000/validate/check
 # TODO: Use --verify option
 CHECK_SSL=0
@@ -37,28 +40,24 @@ USER_AGENT=icinga_check
 # the HOTP counter anywhere!
 
 OTP=`${OTP_CMD} --totp ${OTP_SEED}`
-RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=$USER realm=$REALM pass=${PIN}${OTP}`
+RESULT=`${HTTP_CMD} ${URL} user-agent:${USER_AGENT}  user=${USER} realm=${REALM} pass=${PIN}${OTP}`
 
-echo $RESULT | grep '"status": true' - > /dev/null
-SERVER_OK=$?
 
-echo $RESULT | grep '"value": true' - > /dev/null
-AUTH_OK=$?
 
 # Return codes according to
 # http://docs.icinga.org/latest/en/pluginapi.html
 
-if [ $SERVER_OK -ne 0 ]; then
-   # The server has a problem to process the request
-   echo $RESULT
-   exit 2
+if [ $(echo ${RESULT} | grep -q '"status": true') -ne 0 ]; then
+    # The server has a problem
+    echo ${RESULT}
+    exit ${STATE_CRITICAL}
 fi
 
-if [ $AUTH_OK -ne 0 ]; then
-   # The authentication failed
-   echo $RESULT
-   exit 1
+if [ $(echo ${RESULT} | grep -q '"value": true') -ne 0 ]; then
+    # The authentication failed
+    echo ${RESULT}
+    exit ${STATE_WARNING}
 fi
 
 echo "Testuser $USER authenticated successfully."
-exit 0
+exit ${STATE_OK}
